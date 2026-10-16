@@ -119,6 +119,115 @@ input.bad{border-color:var(--no);background:#FFF6F5}
 .score.bump{animation:bump .5s}
 @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.35);background:#FF8A00}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.burst .rays,.burst .p{display:none}.burst .core{animation-duration:1.4s}}
+
+/* ===== 연속 스캐너 ===== */
+.regcount{font-size:18px;font-weight:700;color:var(--muted);background:var(--bg);border-radius:999px;padding:8px 16px}
+.regcount b{font-size:26px;color:var(--ink);margin-right:2px}
+.regcount.bump{animation:bump .5s}
+.camwrap{position:relative;border-radius:16px;overflow:hidden;background:#000;line-height:0}
+.camwrap video{width:100%;height:auto;display:block}
+.cam-ov{position:absolute;inset:0;width:100%;height:100%}
+.cam-ov polygon{fill:none;stroke-width:0;stroke-linejoin:round}
+.camwrap.ok .cam-ov polygon{stroke:#3DDC84;stroke-width:8;fill:rgba(61,220,132,.18)}
+.camwrap.err .cam-ov polygon{stroke:#FF4D4D;stroke-width:8;fill:rgba(255,77,77,.18)}
+.camwrap.err{animation:shake .35s}
+.aim{position:absolute;left:50%;top:50%;width:min(60%,320px);aspect-ratio:1;transform:translate(-50%,-50%);pointer-events:none}
+.aim i{position:absolute;width:36px;height:36px;border:5px solid rgba(255,255,255,.9);transition:border-color .2s}
+.aim i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-radius:12px 0 0 0}
+.aim i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-radius:0 12px 0 0}
+.aim i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0;border-radius:0 0 0 12px}
+.aim i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0;border-radius:0 0 12px 0}
+.camwrap.ok .aim i{border-color:#3DDC84}.camwrap.err .aim i{border-color:#FF4D4D}
+.aim .laser{position:absolute;left:6%;right:6%;height:3px;background:linear-gradient(90deg,transparent,#FF8A00,transparent);box-shadow:0 0 12px #FF8A00;animation:laser 1.8s ease-in-out infinite}
+.camwrap.ok .laser,.camwrap.err .laser{opacity:0}
+@keyframes laser{0%,100%{top:8%}50%{top:90%}}
+.shut{position:absolute;left:0;right:0;height:50%;background:#0B0F1A;transform:scaleY(0)}
+.shut.top{top:0;transform-origin:top}.shut.bot{bottom:0;transform-origin:bottom}
+.flashw{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.camwrap.shoot .shut{animation:shutter .38s ease-in-out}
+.camwrap.shoot .flashw{animation:flashw .6s ease-out}
+@keyframes shutter{0%{transform:scaleY(0)}45%,55%{transform:scaleY(1)}100%{transform:scaleY(0)}}
+@keyframes flashw{0%,30%{opacity:0}40%{opacity:1}100%{opacity:0}}
+.snap{position:absolute;left:50%;top:50%;width:56%;background:#fff;padding:10px 10px 0;border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,.45);opacity:0;transform:translate(-50%,-50%);line-height:1.3;pointer-events:none}
+.snap img{width:100%;display:block;border-radius:2px}
+.snap-txt{color:#13213B;font-weight:900;font-size:clamp(16px,3vw,24px);text-align:center;padding:10px 4px 12px}
+.snap-txt small{display:block;color:var(--ok);font-size:.75em}
+.camwrap.shoot .snap{animation:snapFly 1.55s cubic-bezier(.3,.8,.3,1) forwards}
+@keyframes snapFly{0%{opacity:0;transform:translate(-50%,-50%) scale(1.25) rotate(0)}22%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-4deg)}70%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-4deg)}100%{opacity:0;transform:translate(60%,-120%) scale(.18) rotate(12deg)}}
+
+/* ===== 시상식 ===== */
+.cer{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;overflow:hidden;color:#fff;background:radial-gradient(ellipse at 50% -10%,#34478A 0%,#17204A 50%,#0A0F24 100%)}
+.cer-lights i{position:absolute;top:-10%;width:40vw;height:130vh;background:linear-gradient(180deg,rgba(255,236,170,.22),transparent 75%);clip-path:polygon(45% 0,55% 0,100% 100%,0 100%);transform-origin:50% 0;mix-blend-mode:screen;animation:sweep 6s ease-in-out infinite}
+.cer-lights i:nth-child(1){left:5vw;--a:-18deg}.cer-lights i:nth-child(2){right:5vw;--a:18deg;animation-delay:-3s}
+@keyframes sweep{0%,100%{transform:rotate(var(--a))}50%{transform:rotate(calc(var(--a) * -1))}}
+.cer-head{text-align:center;padding:3vh 16px 0;position:relative}
+.cer-kicker{font-weight:900;letter-spacing:4px;color:#FFC93C;font-size:clamp(12px,1.4vw,18px)}
+.cer-head h1{font-size:clamp(26px,4.2vw,56px);margin:4px 0 0;letter-spacing:-1px}
+.cer-cards{display:flex;justify-content:center;gap:clamp(8px,1.4vw,20px);padding:2.4vh 16px 0;flex-wrap:wrap;position:relative}
+.slot{width:clamp(170px,21vw,290px);height:clamp(76px,12vh,120px);border:2px dashed rgba(255,255,255,.22);border-radius:18px;display:flex;align-items:center;gap:12px;padding:8px 14px;color:rgba(255,255,255,.35);font-weight:900;font-size:clamp(18px,2.2vw,30px)}
+.slot.on{border:2px solid rgba(143,179,255,.6);color:#fff;background:linear-gradient(135deg,#2A3B70,#1A244B);box-shadow:0 10px 30px rgba(0,0,0,.35);animation:flipIn .7s cubic-bezier(.2,1.4,.4,1)}
+@keyframes flipIn{0%{transform:perspective(600px) rotateY(90deg) scale(.8);opacity:0}100%{transform:perspective(600px) rotateY(0) scale(1);opacity:1}}
+.slot .rk{color:#8FB3FF;flex:none}
+.slot .mini{flex:none;width:clamp(36px,4vw,58px)}
+.slot .mini svg{width:100%;height:auto;display:block}
+.slot .info{min-width:0;flex:1;line-height:1.2}
+.slot .nm{font-size:clamp(17px,2vw,28px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .sc{font-size:clamp(12px,1.2vw,16px);font-weight:700;color:#C9D6F5;white-space:nowrap}
+.cer-stage{flex:1;display:flex;align-items:flex-end;justify-content:center;position:relative;min-height:0}
+.podium{display:flex;align-items:flex-end;width:min(1100px,96vw)}
+.pcol{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.pchar{width:100%;height:clamp(150px,30vh,320px);display:flex;align-items:flex-end;justify-content:center;position:relative;z-index:2}
+.pstep{width:100%;display:flex;flex-direction:column;align-items:center;padding-top:1.2vh;position:relative;box-shadow:inset 0 6px 0 rgba(255,255,255,.35)}
+.p1 .pstep{height:26vh;background:linear-gradient(#FFD75E,#D99A12);border-radius:14px 14px 0 0}
+.p2 .pstep{height:19vh;background:linear-gradient(#DCE3EE,#99A7BD);border-radius:14px 0 0 0}
+.p3 .pstep{height:14vh;background:linear-gradient(#F0B07A,#B86A2E);border-radius:0 14px 0 0}
+.pnum{font-size:clamp(40px,7vh,90px);font-weight:900;line-height:1;color:rgba(30,20,0,.35)}
+.ptag{font-weight:800;color:rgba(20,15,0,.75);font-size:clamp(13px,1.5vw,20px);margin-top:.6vh;opacity:0;transition:opacity .5s .9s}
+.pcol.on .ptag{opacity:1}
+.p1.on::before{content:"";position:absolute;bottom:0;left:50%;width:150%;height:120vh;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 100%,rgba(255,225,120,.35),transparent 60%);pointer-events:none;animation:glow 2s ease-in-out infinite alternate}
+@keyframes glow{from{opacity:.6}to{opacity:1}}
+.chr{position:relative;width:clamp(110px,14vw,200px);--fx:0vw}
+.chr svg{width:100%;height:auto;display:block;overflow:visible}
+.p2 .chr{--fx:-45vw}.p3 .chr{--fx:45vw}
+.chr.in{animation:climb 1.6s cubic-bezier(.35,.1,.3,1) both, bob 1.6s ease-in-out 1.7s infinite}
+.p1 .chr.in{animation:rise 1.9s cubic-bezier(.3,.1,.3,1) both, bob 1.4s ease-in-out 2s infinite}
+@keyframes climb{
+ 0%{transform:translate(var(--fx),40vh);opacity:0}
+ 10%{opacity:1}
+ 25%{transform:translate(calc(var(--fx) * .7),18vh)}
+ 37%{transform:translate(calc(var(--fx) * .5),4vh)}
+ 50%{transform:translate(calc(var(--fx) * .35),18vh)}
+ 68%{transform:translate(calc(var(--fx) * .12),-14vh) rotate(calc(var(--fx) / -4vw * 1deg))}
+ 82%{transform:translate(0,0) scale(1.12,.84)}
+ 91%{transform:translate(0,-3vh) scale(.94,1.06)}
+ 100%{transform:translate(0,0) scale(1)}}
+@keyframes rise{
+ 0%{transform:translateY(55vh) scale(.6);opacity:0}
+ 15%{opacity:1}
+ 45%{transform:translateY(30vh) scale(.8)}
+ 70%{transform:translateY(-22vh) scale(1.05) rotate(360deg)}
+ 84%{transform:translateY(0) scale(1.15,.82) rotate(360deg)}
+ 93%{transform:translateY(-4vh) scale(.95,1.06) rotate(360deg)}
+ 100%{transform:translateY(0) scale(1) rotate(360deg)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.chr .crown{transform-origin:60px 10px;animation:crown 0.8s cubic-bezier(.3,1.6,.5,1) 1.9s both}
+@keyframes crown{0%{transform:translateY(-160px) rotate(-30deg);opacity:0}100%{transform:translateY(0) rotate(0);opacity:1}}
+.chr .arm{transform-box:fill-box;animation:wave .5s ease-in-out infinite alternate}
+.chr .arm.r{transform-origin:0% 100%}.chr .arm.l{transform-origin:100% 100%;animation-delay:.25s}
+@keyframes wave{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}
+.nameplate{position:absolute;left:50%;bottom:16%;transform:translateX(-50%) rotate(-3deg);background:#fff;color:#13213B;font-weight:900;padding:.25em .7em;border-radius:10px;white-space:nowrap;font-size:clamp(16px,2.2vw,30px);border:4px solid var(--c);box-shadow:0 4px 0 rgba(0,0,0,.3);z-index:3}
+.cer-announce{position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,8,20,.72);z-index:5;text-align:center}
+.cer-announce .big1{font-size:clamp(40px,8vw,120px);font-weight:900;color:#FFC93C;text-shadow:0 0 30px rgba(255,180,0,.6);animation:drum .18s ease-in-out infinite alternate}
+@keyframes drum{from{transform:scale(1) rotate(-1deg)}to{transform:scale(1.04) rotate(1deg)}}
+.confetti{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+.confetti i{position:absolute;top:-4vh;width:12px;height:18px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(var(--r))}}
+.cer-ctrl{position:absolute;right:20px;bottom:20px;display:flex;gap:10px;align-items:center;z-index:7}
+.cer-hint{position:fixed;left:20px;bottom:24px;color:#fff;font-size:14px;background:rgba(10,15,36,.7);padding:8px 14px;border-radius:999px;z-index:7}
+.cer .btn.ghost{color:#fff;border-color:rgba(255,255,255,.5)}
+.cer-close{position:fixed;top:16px;right:16px}
+.cer .btn.accent{min-width:120px}
+@media (max-width:640px){.cer-hint{display:none}.slot{width:44vw}}
 .linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:14px;cursor:pointer;min-height:44px}
 </style>
 </head>
@@ -193,6 +302,7 @@ input.bad{border-color:var(--no);background:#FFF6F5}
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" data-tab="join" aria-selected="true">① 접속 QR</button>
     <button class="tab" role="tab" data-tab="scan" aria-selected="false">② 결과 스캔 · 순위</button>
+    <button class="tab" data-tab="award" aria-selected="false">③ 시상식</button>
   </div>
 
   <div id="t-join" class="card stack" style="align-items:center;text-align:center">
@@ -204,17 +314,28 @@ input.bad{border-color:var(--no);background:#FFF6F5}
 
   <div id="t-scan" class="hidden stack">
     <div class="card stack">
-      <div class="row">
-        <button class="btn accent" id="btn-cam">카메라 켜기</button>
-        <button class="btn ghost hidden" id="btn-camoff">카메라 끄기</button>
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div class="row">
+          <button class="btn accent" id="btn-cam">카메라 켜기</button>
+          <button class="btn ghost hidden" id="btn-camoff">카메라 끄기</button>
+        </div>
+        <div class="regcount" id="t-regbox"><b id="t-reg">0</b>명 등록</div>
       </div>
-      <video id="cam" class="hidden" playsinline muted></video>
-      <div class="toast" id="t-toast" role="status" aria-live="polite">학생 결과 QR을 카메라에 비추면 자동으로 등록됩니다.</div>
+      <div class="camwrap hidden" id="camwrap">
+        <video id="cam" playsinline muted></video>
+        <svg class="cam-ov" id="cam-ov" preserveAspectRatio="none" aria-hidden="true"><polygon id="cam-poly" points=""/></svg>
+        <div class="aim" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="laser"></span></div>
+        <div class="shut top" aria-hidden="true"></div><div class="shut bot" aria-hidden="true"></div>
+        <div class="flashw" aria-hidden="true"></div>
+        <div class="snap" id="cam-snap" aria-hidden="true"><img id="cam-snap-img" alt=""><div class="snap-txt" id="cam-snap-txt"></div></div>
+      </div>
+      <div class="toast" id="t-toast" role="status" aria-live="polite">학생 결과 QR을 카메라에 비추면 자동으로 등록됩니다. 여러 명을 연속으로 비춰도 됩니다.</div>
     </div>
     <div class="card">
       <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">
         <h2 style="margin:0">순위 <span id="t-count" style="color:var(--muted);font-size:16px"></span></h2>
         <div class="row">
+          <button class="btn accent small" id="btn-award">시상식 시작</button>
           <button class="btn ghost small" id="btn-csv">CSV 저장</button>
           <button class="btn ghost small" id="btn-reset">초기화</button>
         </div>
@@ -230,6 +351,30 @@ input.bad{border-color:var(--no);background:#FFF6F5}
   <div class="footer"><button class="linkbtn" id="go-student">학생 화면으로</button></div>
 </section>
 
+</div>
+
+<!-- ===== 시상식 ===== -->
+<div id="ceremony" class="cer hidden" role="dialog" aria-modal="true" aria-label="시상식">
+  <div class="cer-lights" aria-hidden="true"><i></i><i></i></div>
+  <header class="cer-head">
+    <div class="cer-kicker">SPEED QUIZ AWARDS</div>
+    <h1>과학 스피드 퀴즈 시상식</h1>
+  </header>
+  <div class="cer-cards" id="cer-cards"></div>
+  <div class="cer-stage">
+    <div class="podium" id="podium">
+      <div class="pcol p2" id="col-2"><div class="pchar" id="pc-2"></div><div class="pstep"><span class="pnum">2</span><div class="ptag" id="pt-2"></div></div></div>
+      <div class="pcol p1" id="col-1"><div class="pchar" id="pc-1"></div><div class="pstep"><span class="pnum">1</span><div class="ptag" id="pt-1"></div></div></div>
+      <div class="pcol p3" id="col-3"><div class="pchar" id="pc-3"></div><div class="pstep"><span class="pnum">3</span><div class="ptag" id="pt-3"></div></div></div>
+    </div>
+  </div>
+  <div class="cer-announce hidden" id="cer-announce" aria-live="polite"></div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+  <div class="cer-ctrl">
+    <span class="cer-hint" id="cer-hint">스페이스바 또는 ‘다음’을 누르세요</span>
+    <button class="btn ghost small cer-close" id="cer-close">닫기</button>
+    <button class="btn accent" id="cer-next">다음</button>
+  </div>
 </div>
 
 <script>
@@ -12814,6 +12959,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   $("go-student").addEventListener("click", function(){ stopCam(); history.replaceState(null,"",location.pathname+location.search); show("s-start"); });
   document.querySelectorAll(".tab").forEach(function(t){
     t.addEventListener("click", function(){
+      if(t.dataset.tab==="award"){ openCeremony(); return; }
       document.querySelectorAll(".tab").forEach(function(x){ x.setAttribute("aria-selected", x===t?"true":"false"); });
       $("t-join").classList.toggle("hidden", t.dataset.tab!=="join");
       $("t-scan").classList.toggle("hidden", t.dataset.tab!=="scan");
@@ -12832,34 +12978,53 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   function renderBoard(){
     var b = ranked(), tb = $("t-body");
     $("t-count").textContent = b.length ? "("+b.length+"명)" : "";
+    $("t-reg").textContent = b.length;
     if(!b.length){ tb.innerHTML='<tr><td colspan="7" style="color:var(--muted)">아직 스캔한 결과가 없어요.</td></tr>'; return; }
     tb.innerHTML = b.map(function(x){
       return '<tr class="'+(x.rank===1?'top1':'')+'"><td class="rank">'+x.rank+'</td><td>'+esc(x.num)+'</td><td class="name">'+esc(x.name)+(x.bad?' <span class="flag">확인 필요</span>':'')+'</td><td><b>'+x.score+'</b></td><td>'+x.correct+'</td><td>'+x.bonus+'</td><td>'+(x.ms/1000).toFixed(1)+'</td></tr>';
     }).join("");
   }
   function toast(msg, kind){ var t=$("t-toast"); t.textContent=msg; t.className="toast "+(kind||""); }
-  var lastText="", lastAt=0;
+  /* ---------- 효과음 (Web Audio, 파일 없이) ---------- */
+  var AC=null;
+  function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(AC && AC.state==="suspended") AC.resume(); return AC; }
+  function tone(f,t0,d,type,vol){ var a=ac(); if(!a) return; var o=a.createOscillator(), g=a.createGain(); o.type=type||"sine"; o.frequency.value=f; g.gain.setValueAtTime(vol||.2,a.currentTime+t0); g.gain.exponentialRampToValueAtTime(.001,a.currentTime+t0+d); o.connect(g); g.connect(a.destination); o.start(a.currentTime+t0); o.stop(a.currentTime+t0+d+.02); }
+  function noise(t0,d,freq,vol){ var a=ac(); if(!a) return; var len=Math.floor(a.sampleRate*d), buf=a.createBuffer(1,len,a.sampleRate), ch=buf.getChannelData(0); for(var i=0;i<len;i++) ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,3); var s=a.createBufferSource(); s.buffer=buf; var f=a.createBiquadFilter(); f.type="bandpass"; f.frequency.value=freq||2500; f.Q.value=.8; var g=a.createGain(); g.gain.value=vol||.6; s.connect(f); f.connect(g); g.connect(a.destination); s.start(a.currentTime+t0); }
+  var sfx = {
+    shutter:function(){ noise(0,.05,3200,.9); noise(.09,.07,1800,.7); },
+    buzz:function(){ tone(150,0,.25,"square",.08); },
+    reveal:function(){ tone(660,0,.12,"triangle",.2); tone(990,.1,.25,"triangle",.2); },
+    land:function(){ tone(220,0,.18,"sine",.35); },
+    drum:function(){ for(var i=0;i<22;i++) noise(i*.075,.06,300+i*15,.5+i*.02); },
+    fanfare:function(){ [523,659,784,1047,784,1047].forEach(function(f,i){ tone(f,i*.13,i===5?.7:.16,"triangle",.22); }); }
+  };
+
+  /* ---------- 결과 QR 처리 ---------- */
+  var lastText="", lastAt=0, lastOk=null;
   function handleScan(text){
-    var now = Date.now(); if(text===lastText && now-lastAt<4000) return; lastText=text; lastAt=now;
+    var now = Date.now(); if(text===lastText && now-lastAt<4000) return null; lastText=text; lastAt=now;
     var p = text.split("|");
-    if(p[0]!=="SQ1" || p.length!==10){ toast("스피드 퀴즈 결과 QR이 아니에요.","no"); return; }
-    if(p[1]!==QUIZ_ID){ toast("다른 퀴즈의 결과예요.","no"); return; }
+    if(p[0]!=="SQ1" || p.length!==10) return {ok:false, msg:"스피드 퀴즈 결과 QR이 아니에요."};
+    if(p[1]!==QUIZ_ID) return {ok:false, msg:"다른 퀴즈의 결과예요."};
     var body = p.slice(0,9).join("|"), bad = hash(body+SALT)!==p[9];
     var rec = {num:p[2], name:p[3], score:+p[4], correct:+p[5], bonus:+p[6], ms:+p[7], marks:p[8], bad:bad, at:now};
     var b = loadBoard();
-    if(b.some(function(x){ return x.num===rec.num && x.name===rec.name; })){ toast(rec.num+"번 "+rec.name+"은(는) 이미 등록됐어요.","no"); return; }
-    b.push(rec); saveBoard(b); renderBoard();
-    if(navigator.vibrate) navigator.vibrate(80);
-    toast("등록: "+rec.num+"번 "+rec.name+" · "+rec.score+"점"+(bad?" (확인 필요)":""),"ok");
+    if(b.some(function(x){ return x.num===rec.num && x.name===rec.name; })){
+      if(lastOk===rec.num+"|"+rec.name) return null;            // 방금 찍은 학생이 화면에 남아 있는 경우는 조용히 무시
+      return {ok:false, msg:rec.num+"번 "+rec.name+"은(는) 이미 등록됐어요."};
+    }
+    b.push(rec); saveBoard(b); renderBoard(); lastOk=rec.num+"|"+rec.name;
+    return {ok:true, rec:rec, msg:"찰칵! "+rec.num+"번 "+rec.name+" · "+rec.score+"점 등록"+(bad?" (확인 필요)":"")};
   }
 
-  var stream=null, scanRaf=null, canvas=document.createElement("canvas"), ctx=canvas.getContext("2d",{willReadFrequently:true});
+  var stream=null, scanRaf=null, cooling=false, canvas=document.createElement("canvas"), ctx=canvas.getContext("2d",{willReadFrequently:true});
   $("btn-cam").addEventListener("click", function(){
+    ac();
     if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ toast("이 브라우저는 카메라를 쓸 수 없어요. https 주소로 열었는지 확인해 주세요.","no"); return; }
-    navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}, audio:false}).then(function(s){
-      stream=s; var v=$("cam"); v.srcObject=s; v.classList.remove("hidden"); v.play();
+    navigator.mediaDevices.getUserMedia({video:{facingMode:"environment", width:{ideal:1280}}, audio:false}).then(function(s){
+      stream=s; var v=$("cam"); v.srcObject=s; $("camwrap").classList.remove("hidden"); v.play();
       $("btn-cam").classList.add("hidden"); $("btn-camoff").classList.remove("hidden");
-      toast("학생 결과 QR을 비춰 주세요.");
+      toast("학생 결과 QR을 네모 안에 비춰 주세요. 찍히면 ‘찰칵’ 소리가 나요.");
       scanLoop();
     }).catch(function(){ toast("카메라 권한이 필요해요. 브라우저 주소창의 권한 설정을 확인해 주세요.","no"); });
   });
@@ -12867,21 +13032,125 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   function stopCam(){
     if(scanRaf) cancelAnimationFrame(scanRaf); scanRaf=null;
     if(stream){ stream.getTracks().forEach(function(t){t.stop();}); stream=null; }
-    $("cam").classList.add("hidden"); $("btn-cam").classList.remove("hidden"); $("btn-camoff").classList.add("hidden");
+    $("camwrap").classList.add("hidden"); $("btn-cam").classList.remove("hidden"); $("btn-camoff").classList.add("hidden");
   }
   var dec = window.TextDecoder ? new TextDecoder("utf-8") : null;
   function scanLoop(){
     var v=$("cam");
-    if(v.readyState===v.HAVE_ENOUGH_DATA){
-      var w=v.videoWidth, h=v.videoHeight, s=Math.min(1, 720/Math.max(w,h));
+    if(!cooling && v.readyState===v.HAVE_ENOUGH_DATA){
+      var w=v.videoWidth, h=v.videoHeight, s=Math.min(1, 800/Math.max(w,h));
       canvas.width=Math.round(w*s); canvas.height=Math.round(h*s);
       ctx.drawImage(v,0,0,canvas.width,canvas.height);
       var img=ctx.getImageData(0,0,canvas.width,canvas.height);
       var code=jsQR(img.data,img.width,img.height,{inversionAttempts:"dontInvert"});
-      if(code){ var txt = (dec && code.binaryData) ? dec.decode(new Uint8Array(code.binaryData)) : code.data; handleScan(txt); }
+      if(code){
+        var txt = (dec && code.binaryData) ? dec.decode(new Uint8Array(code.binaryData)) : code.data;
+        var res = handleScan(txt);
+        if(res) capture(res, code.location, canvas.width, canvas.height);
+      }
     }
     scanRaf=requestAnimationFrame(scanLoop);
   }
+  function capture(res, loc, cw, ch){
+    cooling = true;
+    var wrap=$("camwrap"), ov=$("cam-ov");
+    ov.setAttribute("viewBox","0 0 "+cw+" "+ch);
+    $("cam-poly").setAttribute("points",[loc.topLeftCorner,loc.topRightCorner,loc.bottomRightCorner,loc.bottomLeftCorner].map(function(p){ return p.x.toFixed(0)+","+p.y.toFixed(0); }).join(" "));
+    wrap.classList.remove("ok","err","shoot"); void wrap.offsetWidth;
+    if(res.ok){
+      $("cam-snap-img").src = canvas.toDataURL("image/jpeg",.7);
+      $("cam-snap-txt").innerHTML = esc(res.rec.num+"번 "+res.rec.name)+'<small>'+res.rec.score+'점 · 등록 완료</small>';
+      wrap.classList.add("ok","shoot"); sfx.shutter();
+      if(navigator.vibrate) navigator.vibrate([40,40,60]);
+      setTimeout(function(){ var r=$("t-regbox"); r.classList.remove("bump"); void r.offsetWidth; r.classList.add("bump"); }, 1300);
+    } else { wrap.classList.add("err"); sfx.buzz(); }
+    toast(res.msg, res.ok?"ok":"no");
+    setTimeout(function(){ wrap.classList.remove("ok","err","shoot"); cooling=false; }, res.ok?1600:1100);
+  }
+
+  /* ---------- 시상식 ---------- */
+  var CHAR_COLORS = {1:"#FFC93C",2:"#C9D3E3",3:"#E8935A"}, MINI_COLORS=["#6EA8FE","#7ED7C1","#C49BFF","#FF9EB5"];
+  function charSVG(color, opt){
+    opt = opt||{};
+    var arms = opt.cheer
+      ? '<path class="arm l" d="M24 78 Q8 60 12 40" stroke="'+color+'" stroke-width="11" stroke-linecap="round" fill="none"/><path class="arm r" d="M96 78 Q112 60 108 40" stroke="'+color+'" stroke-width="11" stroke-linecap="round" fill="none"/>'
+      : '<path d="M22 84 Q10 94 16 104" stroke="'+color+'" stroke-width="11" stroke-linecap="round" fill="none"/><path d="M98 84 Q110 94 104 104" stroke="'+color+'" stroke-width="11" stroke-linecap="round" fill="none"/>';
+    var crown = opt.crown ? '<g class="crown"><path d="M38 22 L46 4 L60 18 L74 4 L82 22 Z" fill="#FFD600" stroke="#B07800" stroke-width="2.5" stroke-linejoin="round"/><circle cx="46" cy="4" r="3.5" fill="#FF3D77"/><circle cx="60" cy="18" r="3" fill="#2EC5FF"/><circle cx="74" cy="4" r="3.5" fill="#FF3D77"/></g>' : '';
+    return '<svg viewBox="0 0 120 150" aria-hidden="true">'+
+      '<ellipse cx="60" cy="144" rx="34" ry="6" fill="rgba(0,0,0,.28)"/>'+
+      arms+
+      '<ellipse cx="44" cy="136" rx="13" ry="8" fill="#2A2F45"/><ellipse cx="76" cy="136" rx="13" ry="8" fill="#2A2F45"/>'+
+      '<line x1="60" y1="34" x2="60" y2="22" stroke="#2A2F45" stroke-width="3"/>'+
+      (opt.crown?'':'<circle cx="60" cy="18" r="6" fill="'+color+'" stroke="#2A2F45" stroke-width="3"/>')+
+      '<rect x="18" y="32" width="84" height="104" rx="42" fill="'+color+'" stroke="#2A2F45" stroke-width="3.5"/>'+
+      '<ellipse cx="60" cy="104" rx="28" ry="22" fill="#fff" opacity=".35"/>'+
+      '<ellipse cx="46" cy="70" rx="9" ry="11" fill="#fff" stroke="#2A2F45" stroke-width="2.5"/><ellipse cx="74" cy="70" rx="9" ry="11" fill="#fff" stroke="#2A2F45" stroke-width="2.5"/>'+
+      '<circle cx="48" cy="72" r="4.5" fill="#2A2F45"/><circle cx="76" cy="72" r="4.5" fill="#2A2F45"/><circle cx="49.5" cy="70" r="1.6" fill="#fff"/><circle cx="77.5" cy="70" r="1.6" fill="#fff"/>'+
+      '<ellipse cx="34" cy="86" rx="6" ry="4" fill="#FF7A9C" opacity=".6"/><ellipse cx="86" cy="86" rx="6" ry="4" fill="#FF7A9C" opacity=".6"/>'+
+      '<path d="M50 86 Q60 '+(opt.cheer?98:94)+' 70 86" stroke="#2A2F45" stroke-width="3" fill="'+(opt.cheer?'#9E2A3A':'none')+'" stroke-linecap="round"/>'+
+      crown+'</svg>';
+  }
+  var steps=[], stepI=0, cerList=[];
+  function openCeremony(){
+    cerList = ranked();
+    if(!cerList.length){ toast("먼저 학생 결과 QR을 스캔해 주세요.","no"); return; }
+    stopCam(); ac();
+    var n = Math.min(7, cerList.length);
+    // 4~7위 자리 만들기
+    var cards = $("cer-cards"); cards.innerHTML="";
+    for(var i=3;i<n;i++){ var s=document.createElement("div"); s.className="slot"; s.id="slot-"+i; s.textContent=(i+1)+"위"; cards.appendChild(s); }
+    cards.style.display = n>3 ? "" : "none";
+    [1,2,3].forEach(function(k){ var c=$("col-"+k); c.classList.remove("on"); c.style.visibility = k<=n ? "" : "hidden"; $("pc-"+k).innerHTML=""; $("pt-"+k).textContent=""; });
+    $("confetti").innerHTML=""; $("cer-announce").classList.add("hidden");
+    steps=[];
+    for(var j=n-1;j>=0;j--){ if(j===0 && n>1) steps.push({t:"drum"}); steps.push({t: j>=3?"card":"pod", i:j}); }
+    stepI=0; $("cer-next").textContent="다음"; $("cer-next").disabled=false;
+    $("cer-hint").textContent = (n)+"위부터 발표합니다 · 스페이스바 또는 ‘다음’";
+    $("ceremony").classList.remove("hidden");
+    try{ if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){}); }catch(e){}
+    $("cer-next").focus();
+  }
+  function closeCeremony(){
+    $("ceremony").classList.add("hidden");
+    try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){}
+  }
+  function nextStep(){
+    if(stepI>=steps.length){ closeCeremony(); return; }
+    var st = steps[stepI++], ann=$("cer-announce");
+    if(st.t!=="drum") ann.classList.add("hidden");
+    if(st.t==="card"){
+      var x=cerList[st.i], s=$("slot-"+st.i);
+      s.className="slot on";
+      s.innerHTML='<span class="rk">'+x.rank+'위</span><span class="mini">'+charSVG(MINI_COLORS[st.i%4])+'</span><span class="info"><div class="nm">'+esc(x.name)+'</div><div class="sc">'+x.score+'점 · '+(x.ms/1000).toFixed(1)+'초</div></span>';
+      sfx.reveal();
+    } else if(st.t==="drum"){
+      ann.innerHTML='<div><div class="big1">대망의 1위는…?</div></div>'; ann.classList.remove("hidden"); sfx.drum();
+    } else {
+      var k=st.i+1, r=cerList[st.i], col=$("col-"+k);
+      col.classList.add("on");
+      $("pc-"+k).innerHTML='<div class="chr in" style="--c:'+CHAR_COLORS[k]+'">'+charSVG(CHAR_COLORS[k],{crown:k===1, cheer:k===1})+'<div class="nameplate">'+esc(r.name)+'</div></div>';
+      $("pt-"+k).textContent = (r.rank!==k? r.rank+"위(동점) · " : "")+r.score+"점 · "+(r.ms/1000).toFixed(1)+"초";
+      setTimeout(sfx.land, k===1?1600:1300);
+      if(k===1){ setTimeout(function(){ sfx.fanfare(); confetti(); }, 1700); }
+    }
+    if(stepI>=steps.length){ $("cer-next").textContent="마치기"; $("cer-hint").textContent="모두 축하해요!"; }
+  }
+  function confetti(){
+    var box=$("confetti"), cols=["#FFD600","#FF8A00","#FF3D77","#B44DFF","#2EC5FF","#3DDC84","#fff"], h="";
+    for(var i=0;i<160;i++){
+      h+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;background:'+cols[i%cols.length]+';--dx:'+Math.round(Math.random()*240-120)+'px;--r:'+Math.round(Math.random()*1440-720)+'deg;animation-duration:'+(2.6+Math.random()*2.4).toFixed(2)+'s;animation-delay:'+(Math.random()*1.2).toFixed(2)+'s;width:'+(8+Math.random()*8).toFixed(0)+'px"></i>';
+    }
+    box.innerHTML=h;
+  }
+  $("btn-award").addEventListener("click", openCeremony);
+  $("cer-next").addEventListener("click", nextStep);
+  $("cer-close").addEventListener("click", closeCeremony);
+  document.addEventListener("keydown", function(e){
+    if($("ceremony").classList.contains("hidden")) return;
+    if(e.target.tagName==="BUTTON" && (e.key===" "||e.key==="Enter")) return;   // 버튼 자체 클릭과 겹치지 않게
+    if(e.key===" "||e.key==="Enter"||e.key==="ArrowRight"){ e.preventDefault(); nextStep(); }
+    else if(e.key==="Escape"){ closeCeremony(); }
+  });
 
   $("btn-csv").addEventListener("click", function(){
     var rows=[["순위","번호","이름","점수","정답수","스피드보너스","총시간(초)","문항별(S=스피드정답,O=정답,X=오답)","확인필요"]];
