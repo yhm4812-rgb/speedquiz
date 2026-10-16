@@ -121,6 +121,17 @@ input.bad{border-color:var(--no);background:#FFF6F5}
 @media (prefers-reduced-motion:reduce){.burst .rays,.burst .p{display:none}.burst .core{animation-duration:1.4s}}
 
 /* ===== 연속 스캐너 ===== */
+.scanstat{font-size:14px;color:var(--muted);min-height:20px}
+.scanstat::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:#3DDC84;margin-right:8px;vertical-align:1px;animation:blink 1s infinite}
+.scanstat:empty::before{display:none}
+@keyframes blink{50%{opacity:.2}}
+.toast.info{color:#1F4E99}
+.manual{border-top:1px solid var(--line);padding-top:12px}
+.manual summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:center}
+.mgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.mgrid label{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.mgrid input{min-height:44px;font-size:17px}
+@media (max-width:560px){.mgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .regcount{font-size:18px;font-weight:700;color:var(--muted);background:var(--bg);border-radius:999px;padding:8px 16px}
 .regcount b{font-size:26px;color:var(--ink);margin-right:2px}
 .regcount.bump{animation:bump .5s}
@@ -318,6 +329,7 @@ input.bad{border-color:var(--no);background:#FFF6F5}
         <div class="row">
           <button class="btn accent" id="btn-cam">카메라 켜기</button>
           <button class="btn ghost hidden" id="btn-camoff">카메라 끄기</button>
+          <button class="btn ghost small hidden" id="btn-camswitch">카메라 전환</button>
         </div>
         <div class="regcount" id="t-regbox"><b id="t-reg">0</b>명 등록</div>
       </div>
@@ -330,6 +342,25 @@ input.bad{border-color:var(--no);background:#FFF6F5}
         <div class="snap" id="cam-snap" aria-hidden="true"><img id="cam-snap-img" alt=""><div class="snap-txt" id="cam-snap-txt"></div></div>
       </div>
       <div class="toast" id="t-toast" role="status" aria-live="polite">학생 결과 QR을 카메라에 비추면 자동으로 등록됩니다. 여러 명을 연속으로 비춰도 됩니다.</div>
+      <div class="scanstat" id="t-scanstat" aria-hidden="true"></div>
+      <details class="manual">
+        <summary>인식이 잘 안 될 때</summary>
+        <ul class="rules" style="margin:10px 0 14px">
+          <li>학생 태블릿 <b>화면 밝기를 최대</b>로, QR이 <b>네모 안에 꽉 차게</b> 들어오게 해 주세요.</li>
+          <li>웹캠과 <b>20~40cm</b> 거리가 좋아요. 너무 가까우면 초점이 안 맞아요.</li>
+          <li>형광등이 화면에 <b>반사</b>되면 태블릿을 살짝 기울여 주세요.</li>
+          <li>그래도 안 되면 학생 화면에 나온 점수를 보고 아래에 직접 입력하세요.</li>
+        </ul>
+        <div class="mgrid">
+          <label>번호<input type="number" id="m-num" inputmode="numeric"></label>
+          <label>이름<input type="text" id="m-name" maxlength="10"></label>
+          <label>점수<input type="number" id="m-score" inputmode="numeric" min="0" max="20"></label>
+          <label>정답 수<input type="number" id="m-correct" inputmode="numeric" min="0" max="10"></label>
+          <label>스피드 보너스<input type="number" id="m-bonus" inputmode="numeric" min="0" max="10"></label>
+          <label>총 풀이 시간(초)<input type="number" id="m-time" inputmode="decimal" step="0.1" min="0"></label>
+        </div>
+        <button class="btn small" id="m-add" style="margin-top:12px">직접 등록</button>
+      </details>
     </div>
     <div class="card">
       <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -12981,7 +13012,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     $("t-reg").textContent = b.length;
     if(!b.length){ tb.innerHTML='<tr><td colspan="7" style="color:var(--muted)">아직 스캔한 결과가 없어요.</td></tr>'; return; }
     tb.innerHTML = b.map(function(x){
-      return '<tr class="'+(x.rank===1?'top1':'')+'"><td class="rank">'+x.rank+'</td><td>'+esc(x.num)+'</td><td class="name">'+esc(x.name)+(x.bad?' <span class="flag">확인 필요</span>':'')+'</td><td><b>'+x.score+'</b></td><td>'+x.correct+'</td><td>'+x.bonus+'</td><td>'+(x.ms/1000).toFixed(1)+'</td></tr>';
+      return '<tr class="'+(x.rank===1?'top1':'')+'"><td class="rank">'+x.rank+'</td><td>'+esc(x.num)+'</td><td class="name">'+esc(x.name)+(x.bad?' <span class="flag">확인 필요</span>':'')+(x.manual?' <span class="flag" style="color:var(--muted)">직접 입력</span>':'')+'</td><td><b>'+x.score+'</b></td><td>'+x.correct+'</td><td>'+x.bonus+'</td><td>'+(x.ms/1000).toFixed(1)+'</td></tr>';
     }).join("");
   }
   function toast(msg, kind){ var t=$("t-toast"); t.textContent=msg; t.className="toast "+(kind||""); }
@@ -13010,63 +13041,111 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     var rec = {num:p[2], name:p[3], score:+p[4], correct:+p[5], bonus:+p[6], ms:+p[7], marks:p[8], bad:bad, at:now};
     var b = loadBoard();
     if(b.some(function(x){ return x.num===rec.num && x.name===rec.name; })){
-      if(lastOk===rec.num+"|"+rec.name) return null;            // 방금 찍은 학생이 화면에 남아 있는 경우는 조용히 무시
-      return {ok:false, msg:rec.num+"번 "+rec.name+"은(는) 이미 등록됐어요."};
+      if(lastOk===rec.num+"|"+rec.name){                          // 방금 찍은 학생 QR이 아직 화면에 남아 있는 경우
+        toast("✓ "+rec.num+"번 "+rec.name+" 등록 완료 — 다음 학생 QR을 비춰 주세요. (같은 번호·이름은 한 번만 등록돼요)","info");
+        return null;
+      }
+      return {ok:false, msg:rec.num+"번 "+rec.name+"은(는) 이미 등록됐어요. (같은 번호·이름은 한 번만 등록돼요)"};
     }
     b.push(rec); saveBoard(b); renderBoard(); lastOk=rec.num+"|"+rec.name;
     return {ok:true, rec:rec, msg:"찰칵! "+rec.num+"번 "+rec.name+" · "+rec.score+"점 등록"+(bad?" (확인 필요)":"")};
   }
 
-  var stream=null, scanRaf=null, cooling=false, canvas=document.createElement("canvas"), ctx=canvas.getContext("2d",{willReadFrequently:true});
-  $("btn-cam").addEventListener("click", function(){
+  var stream=null, scanRaf=null, cooling=false, coolAt=0, lastTick=0, frameNo=0, camIdx=-1, cams=[];
+  var canvas=document.createElement("canvas"), ctx=canvas.getContext("2d",{willReadFrequently:true});
+  var snapCv=document.createElement("canvas"), snapCtx=snapCv.getContext("2d");
+  function startCam(deviceId){
     ac();
     if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ toast("이 브라우저는 카메라를 쓸 수 없어요. https 주소로 열었는지 확인해 주세요.","no"); return; }
-    navigator.mediaDevices.getUserMedia({video:{facingMode:"environment", width:{ideal:1280}}, audio:false}).then(function(s){
-      stream=s; var v=$("cam"); v.srcObject=s; $("camwrap").classList.remove("hidden"); v.play();
+    if(stream){ stream.getTracks().forEach(function(t){t.stop();}); stream=null; }
+    var vc = deviceId ? {deviceId:{exact:deviceId}, width:{ideal:1280}, height:{ideal:720}} : {facingMode:"environment", width:{ideal:1280}, height:{ideal:720}};
+    navigator.mediaDevices.getUserMedia({video:vc, audio:false}).then(function(s){
+      stream=s; var v=$("cam"); v.srcObject=s; $("camwrap").classList.remove("hidden");
+      var pr=v.play(); if(pr && pr.catch) pr.catch(function(){});
       $("btn-cam").classList.add("hidden"); $("btn-camoff").classList.remove("hidden");
+      cooling=false;
       toast("학생 결과 QR을 네모 안에 비춰 주세요. 찍히면 ‘찰칵’ 소리가 나요.");
-      scanLoop();
-    }).catch(function(){ toast("카메라 권한이 필요해요. 브라우저 주소창의 권한 설정을 확인해 주세요.","no"); });
-  });
+      navigator.mediaDevices.enumerateDevices().then(function(d){
+        cams=d.filter(function(x){ return x.kind==="videoinput"; });
+        $("btn-camswitch").classList.toggle("hidden", cams.length<2);
+      }).catch(function(){});
+      if(!scanRaf) scanRaf=requestAnimationFrame(scanLoop);
+    }).catch(function(){ toast("카메라를 켤 수 없어요. 주소창의 카메라 권한을 ‘허용’으로 바꾸고, 다른 앱(줌 등)이 카메라를 쓰고 있지 않은지 확인해 주세요.","no"); });
+  }
+  $("btn-cam").addEventListener("click", function(){ startCam(); });
+  $("btn-camswitch").addEventListener("click", function(){ if(!cams.length) return; camIdx=(camIdx+1)%cams.length; startCam(cams[camIdx].deviceId); });
   $("btn-camoff").addEventListener("click", stopCam);
   function stopCam(){
     if(scanRaf) cancelAnimationFrame(scanRaf); scanRaf=null;
     if(stream){ stream.getTracks().forEach(function(t){t.stop();}); stream=null; }
-    $("camwrap").classList.add("hidden"); $("btn-cam").classList.remove("hidden"); $("btn-camoff").classList.add("hidden");
+    $("camwrap").classList.add("hidden"); $("btn-cam").classList.remove("hidden"); $("btn-camoff").classList.add("hidden"); $("btn-camswitch").classList.add("hidden");
+    $("t-scanstat").textContent="";
   }
+  // 다른 탭에 갔다 오거나 화면이 꺼졌다 켜지면 카메라가 멈추는 기기가 있어 자동으로 다시 켭니다.
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState==="visible" && stream && stream.getVideoTracks().some(function(t){ return t.readyState==="ended"; })) startCam(camIdx>=0&&cams[camIdx]?cams[camIdx].deviceId:undefined);
+  });
   var dec = window.TextDecoder ? new TextDecoder("utf-8") : null;
-  function scanLoop(){
+  function scanLoop(ts){
+    scanRaf=requestAnimationFrame(scanLoop);            // 먼저 다음 프레임을 예약해서, 중간에 오류가 나도 스캔이 멈추지 않게
+    if(!stream) return;
+    if(cooling && Date.now()-coolAt>3000) cooling=false; // 안전장치
+    if(cooling || ts-lastTick<90) return;
+    lastTick=ts;
     var v=$("cam");
-    if(!cooling && v.readyState===v.HAVE_ENOUGH_DATA){
-      var w=v.videoWidth, h=v.videoHeight, s=Math.min(1, 800/Math.max(w,h));
-      canvas.width=Math.round(w*s); canvas.height=Math.round(h*s);
-      ctx.drawImage(v,0,0,canvas.width,canvas.height);
+    try{
+      if(v.paused) { var pr=v.play(); if(pr && pr.catch) pr.catch(function(){}); }
+      if(stream.getVideoTracks().some(function(t){ return t.readyState==="ended"; })){ $("t-scanstat").textContent="카메라가 멈췄어요. ‘카메라 끄기’ 후 다시 켜 주세요."; return; }
+      if(v.readyState<2 || !v.videoWidth) return;
+      $("t-scanstat").textContent="QR 찾는 중…";
+      frameNo++;
+      var W=v.videoWidth, H=v.videoHeight, sx=0, sy=0, sw=W, sh=H, inv="dontInvert";
+      if(frameNo%2===0){ sw=Math.round(W*.62); sh=Math.round(H*.62); sx=Math.round((W-sw)/2); sy=Math.round((H-sh)/2); inv="attemptBoth"; } // 번갈아 가운데를 확대해서 봄
+      var s=Math.min(1, 960/Math.max(sw,sh));
+      canvas.width=Math.round(sw*s); canvas.height=Math.round(sh*s);
+      ctx.drawImage(v,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
       var img=ctx.getImageData(0,0,canvas.width,canvas.height);
-      var code=jsQR(img.data,img.width,img.height,{inversionAttempts:"dontInvert"});
+      var code=jsQR(img.data,img.width,img.height,{inversionAttempts:inv});
       if(code){
-        var txt = (dec && code.binaryData) ? dec.decode(new Uint8Array(code.binaryData)) : code.data;
+        var txt = (dec && code.binaryData && code.binaryData.length) ? dec.decode(new Uint8Array(code.binaryData)) : code.data;
         var res = handleScan(txt);
-        if(res) capture(res, code.location, canvas.width, canvas.height);
+        if(res){
+          var L=code.location, pts=[L.topLeftCorner,L.topRightCorner,L.bottomRightCorner,L.bottomLeftCorner].map(function(p){ return {x:sx+p.x/s, y:sy+p.y/s}; });
+          capture(res, pts, W, H, v);
+        }
       }
-    }
-    scanRaf=requestAnimationFrame(scanLoop);
+    }catch(e){ cooling=false; if(window.console) console.warn("scan error", e); }
   }
-  function capture(res, loc, cw, ch){
-    cooling = true;
-    var wrap=$("camwrap"), ov=$("cam-ov");
-    ov.setAttribute("viewBox","0 0 "+cw+" "+ch);
-    $("cam-poly").setAttribute("points",[loc.topLeftCorner,loc.topRightCorner,loc.bottomRightCorner,loc.bottomLeftCorner].map(function(p){ return p.x.toFixed(0)+","+p.y.toFixed(0); }).join(" "));
+  function capture(res, pts, W, H, v){
+    cooling = true; coolAt = Date.now();
+    var wrap=$("camwrap");
+    $("cam-ov").setAttribute("viewBox","0 0 "+W+" "+H);
+    $("cam-poly").setAttribute("points", pts.map(function(p){ return p.x.toFixed(0)+","+p.y.toFixed(0); }).join(" "));
     wrap.classList.remove("ok","err","shoot"); void wrap.offsetWidth;
     if(res.ok){
-      $("cam-snap-img").src = canvas.toDataURL("image/jpeg",.7);
+      try{ var k=Math.min(1,640/W); snapCv.width=Math.round(W*k); snapCv.height=Math.round(H*k); snapCtx.drawImage(v,0,0,snapCv.width,snapCv.height); $("cam-snap-img").src = snapCv.toDataURL("image/jpeg",.7); }catch(e){}
       $("cam-snap-txt").innerHTML = esc(res.rec.num+"번 "+res.rec.name)+'<small>'+res.rec.score+'점 · 등록 완료</small>';
-      wrap.classList.add("ok","shoot"); sfx.shutter();
-      if(navigator.vibrate) navigator.vibrate([40,40,60]);
+      wrap.classList.add("ok","shoot");
+      try{ sfx.shutter(); if(navigator.vibrate) navigator.vibrate([40,40,60]); }catch(e){}
       setTimeout(function(){ var r=$("t-regbox"); r.classList.remove("bump"); void r.offsetWidth; r.classList.add("bump"); }, 1300);
-    } else { wrap.classList.add("err"); sfx.buzz(); }
+    } else { wrap.classList.add("err"); try{ sfx.buzz(); }catch(e){} }
     toast(res.msg, res.ok?"ok":"no");
-    setTimeout(function(){ wrap.classList.remove("ok","err","shoot"); cooling=false; }, res.ok?1600:1100);
+    setTimeout(function(){ wrap.classList.remove("ok","err","shoot"); cooling=false; }, res.ok?1500:1100);
   }
+
+  /* ---------- 직접 등록 ---------- */
+  $("m-add").addEventListener("click", function(){
+    var num=$("m-num").value.trim(), name=$("m-name").value.trim().replace(/\|/g,""), sc=parseInt($("m-score").value,10);
+    if(!num || !name || isNaN(sc)){ toast("번호, 이름, 점수는 꼭 입력해 주세요.","no"); return; }
+    var b=loadBoard();
+    if(b.some(function(x){ return x.num===num && x.name===name; })){ toast(num+"번 "+name+"은(는) 이미 등록됐어요.","no"); return; }
+    var t=parseFloat($("m-time").value);
+    b.push({num:num, name:name, score:sc, correct:parseInt($("m-correct").value,10)||0, bonus:parseInt($("m-bonus").value,10)||0, ms:isNaN(t)?999000:Math.round(t*1000), marks:"수동", bad:false, manual:true, at:Date.now()});
+    saveBoard(b); renderBoard();
+    ["m-num","m-name","m-score","m-correct","m-bonus","m-time"].forEach(function(id){ $(id).value=""; });
+    toast("직접 등록: "+num+"번 "+name+" · "+sc+"점","ok");
+    $("m-num").focus();
+  });
 
   /* ---------- 시상식 ---------- */
   var CHAR_COLORS = {1:"#FFC93C",2:"#C9D3E3",3:"#E8935A"}, MINI_COLORS=["#6EA8FE","#7ED7C1","#C49BFF","#FF9EB5"];
